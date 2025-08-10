@@ -6,13 +6,15 @@ import io
 import sys
 import os
 
-# Make sure Streamlit finds your 'src' package
+# Allow importing from src
 CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
 PARENT_DIR = os.path.dirname(CURRENT_DIR)
 sys.path.append(PARENT_DIR)
 
-# Import config from src/config.py
-from src import config
+from src import config, etl
+
+# Run ETL init at startup (only if needed)
+etl.init_db()
 
 # ---------------------------
 # Page config
