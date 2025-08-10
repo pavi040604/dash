@@ -1,6 +1,7 @@
 import pandas as pd
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, inspect
 from loguru import logger
+import os
 import config
 
 logger.add("logs/etl.log", rotation="1 MB")
@@ -33,7 +34,17 @@ def load(df, db_url):
         logger.error(f"Load failed: {e}")
         raise
 
+def init_db():
+    """Create and load sales table if not exists."""
+    engine = create_engine(config.DB_URL)
+    inspector = inspect(engine)
+    if "sales" not in inspector.get_table_names():
+        logger.info("Sales table not found. Creating and loading data...")
+        df = extract(config.RAW_DATA_PATH)
+        df = transform(df)
+        load(df, config.DB_URL)
+    else:
+        logger.info("Sales table already exists. Skipping ETL.")
+
 if __name__ == "__main__":
-    df = extract(config.RAW_DATA_PATH)
-    df = transform(df)
-    load(df, config.DB_URL)
+    init_db()
