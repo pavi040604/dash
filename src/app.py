@@ -5,8 +5,14 @@ import plotly.express as px
 import io
 import sys
 import os
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
+# Make sure Streamlit finds your 'src' package
+CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
+PARENT_DIR = os.path.dirname(CURRENT_DIR)
+sys.path.append(PARENT_DIR)
+
+# Import config from src/config.py
+from src import config
 
 # ---------------------------
 # Page config
@@ -24,7 +30,6 @@ st.set_page_config(
 def load_data():
     engine = create_engine(config.DB_URL)
     df = pd.read_sql("SELECT * FROM sales", engine)
-    # Ensure date parsing works with DD/MM/YYYY formats
     df["order_date"] = pd.to_datetime(df["order_date"], dayfirst=True, errors="coerce")
     return df
 
